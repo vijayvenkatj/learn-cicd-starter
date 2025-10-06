@@ -1,29 +1,38 @@
-deploy:
-  name: Deploy
-  runs-on: ubuntu-latest
+name: cd
 
-  steps:
-    - name: Check out code
-      uses: actions/checkout@v4
+on:
+  push:
+    branches: [main]
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: "1.25.1"
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
 
-    - name: Build Prod app
-      run: ./scripts/buildprod.sh
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - id: auth
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.1"
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v3
+      - name: Build Prod app
+        run: ./scripts/buildprod.sh
 
-    - name: Use gcloud CLI
-      run: gcloud info
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-    - name: Build cloud image
-      run: gcloud builds submit --tag us-central1-docker.pkg.dev/notely-474309/notely-ar-repo/notely-app-prod:latest
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Use gcloud CLI
+        run: gcloud info
+
+      - name: Build cloud image
+        run: gcloud builds submit --tag us-central1-docker.pkg.dev/notely-474309/notely-ar-repo/notely-app-prod:latest
+
+  
